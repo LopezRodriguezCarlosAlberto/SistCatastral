@@ -2,12 +2,15 @@ import { Component, OnInit, Input,ViewChild } from '@angular/core';
 import { MapComponent } from '../map/map.component';
 import {MatDialog} from '@angular/material/dialog';
 import { DialogComponent } from '../dialog/dialog.component';
+import Property from '../core/property.interface';
 @Component({
   selector: 'app-sidenav',
   templateUrl: './sidenav.component.html',
   styleUrls: ['./sidenav.component.css']
 })
 export class SidenavComponent implements OnInit{
+
+  modelProperty: Property;
 
   opened = false;
   
@@ -21,11 +24,14 @@ export class SidenavComponent implements OnInit{
 
   @ViewChild('mymap') myMap: MapComponent;
 
-  constructor( public dialog: MatDialog) { }
+  constructor( public dialog: MatDialog) { this.modelProperty = {}; }
 
   ngOnInit(): void {
   }
 
+  loadProperty(property: Property){
+    this.modelProperty = property;
+  }
   
   handleVisibleBaseLayer(index: number): void{
     this.myMap.getMapService().setVisibleBaseLayer(index);

@@ -16,6 +16,9 @@ import Fill from 'ol/style/Fill';
 import Stroke from 'ol/style/Stroke';
 import GeoJSON from 'ol/format/GeoJSON';
 
+import { bbox } from 'ol/loadingstrategy';
+
+
 import { HttpClient } from '@angular/common/http';
 import { Feature, MapBrowserEvent, Overlay } from 'ol';
 import Geometry from 'ol/geom/Geometry';
@@ -30,17 +33,23 @@ import { EventsKey } from 'ol/events';
 import BaseEvent from 'ol/events/Event';
 import Polygon from 'ol/geom/Polygon';
 import LineString from 'ol/geom/LineString';
-import { unByKey } from 'ol/Observable';
 import OverlayPositioning from 'ol/OverlayPositioning';
 import { Coordinate } from 'ol/coordinate';
 
-import {FullScreen} from 'ol/control';
-import { DragRotateAndZoom} from 'ol/interaction';
+import { FullScreen } from 'ol/control';
+import { DragRotateAndZoom, Select } from 'ol/interaction';
 
 import { Size } from 'ol/size';
 import * as jsPDF from 'jspdf';
+import { click } from 'ol/events/condition';
+import { SelectEvent } from 'ol/interaction/Select';
+import { unByKey } from 'ol/Observable';
+
+import Observable from '../core/Observable.interface';
+import Property from '../core/property.interface';
+import Observer from '../core/Observer.interface';
 @Injectable()
-export class MapService {
+export class MapService implements Observable {
 
     private instance: Map;
     private view: View;
@@ -72,6 +81,11 @@ export class MapService {
     MAX_ZOOM_FIT_VIEW = 18;
 
 
+    propertySelected: Property;
+
+    // Observa el cambio en propertySelected
+    observer: Observer;
+
 
 
 
@@ -80,12 +94,20 @@ export class MapService {
         this.instance = new Map({});
         this.nav_his = new Array<Movement>();
     }
+    addObserver(observer: Observer): void {
+        this.observer = observer;
+    }
+    removeObserver(observer: Observer) {}
+
+    notify(): void {
+        this.observer.update(this, this.propertySelected);
+    }
 
     buildMap(): void {
         // View
         const center = transform([-105.167, 27.667], 'EPSG:4326', 'EPSG:3857');
 
-        this.view = new View({ center, zoom: 10, maxZoom: 20, minZoom: 8 });
+        this.view = new View({ center, zoom: 17, maxZoom: 20, minZoom: 8 });
         this.instance.setView(this.view);
 
 
@@ -105,6 +127,8 @@ export class MapService {
         this.instance.addControl(new FullScreen);
         this.instance.addInteraction(new DragRotateAndZoom);
         this.InitHistory();
+
+        this.initControlSelectProperty();
     }
 
 
@@ -113,10 +137,10 @@ export class MapService {
         let osm_source = new OSM();
         let osm: Layer = new TileLayer({ source: osm_source });
 
-        let osm_humanitarian_source = new OSM({ url: 'http://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png' ,crossOrigin: "anonymous"});
+        let osm_humanitarian_source = new OSM({ url: 'http://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', crossOrigin: "anonymous" });
         let osm_humanitarian: Layer = new TileLayer({ source: osm_humanitarian_source, });
 
-        let stamen_source = new XYZ({ url: 'http://tile.stamen.com/watercolor/{z}/{x}/{y}.jpg' ,crossOrigin: "anonymous"});
+        let stamen_source = new XYZ({ url: 'http://tile.stamen.com/watercolor/{z}/{x}/{y}.jpg', crossOrigin: "anonymous" });
         let stamen: Layer = new TileLayer({ source: stamen_source });
 
         this.tileBaseLayers = new LayerGroup({ layers: [osm, osm_humanitarian, stamen] });
@@ -128,7 +152,7 @@ export class MapService {
         // Tile Layers from SUAC GDB08:vialidades
 
         let zones_source = new ImageWMS({
-            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',crossOrigin: "anonymous",
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms', crossOrigin: "anonymous",
             params: {
                 LAYERS: 'GDB08:zonas', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
             },
@@ -136,7 +160,7 @@ export class MapService {
         });
 
         let localities_source = new ImageWMS({
-            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',crossOrigin: "anonymous",
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms', crossOrigin: "anonymous",
             params: {
                 LAYERS: 'GDB08:localidades', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
             },
@@ -144,7 +168,7 @@ export class MapService {
         });
 
         let sectors_source = new ImageWMS({
-            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',crossOrigin: "anonymous",
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms', crossOrigin: "anonymous",
             params: {
                 LAYERS: 'GDB08:sectores', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
             },
@@ -153,7 +177,7 @@ export class MapService {
 
         // Asentamientos
         let township_source = new ImageWMS({
-            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',crossOrigin: "anonymous",
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms', crossOrigin: "anonymous",
             params: {
                 LAYERS: 'GDB08:asentamientos', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
             },
@@ -162,7 +186,7 @@ export class MapService {
 
 
         let roads_source = new ImageWMS({
-            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',crossOrigin: "anonymous",
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms', crossOrigin: "anonymous",
             params: {
                 LAYERS: 'GDB08:vialidades', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
             },
@@ -170,7 +194,7 @@ export class MapService {
         });
 
         let blocks_source = new ImageWMS({
-            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',crossOrigin: "anonymous",
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms', crossOrigin: "anonymous",
             params: {
                 LAYERS: 'GDB08:manzanas', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
             },
@@ -179,7 +203,7 @@ export class MapService {
 
 
         let properties_source = new TileWMS({
-            url: 'http://187.189.192.102:8080/geoserver/GDB08011/wms',crossOrigin: "anonymous",
+            url: 'http://187.189.192.102:8080/geoserver/GDB08011/wms', crossOrigin: "anonymous",
             params: {
                 LAYERS: 'GDB08011:p', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
             },
@@ -194,9 +218,15 @@ export class MapService {
         let roads_layer = new ImageLayer({ source: roads_source });
         let blocks_layer = new ImageLayer({ source: blocks_source });
         let properties_layer = new TileLayer({ source: properties_source });
+
+        properties_layer.setVisible(false);
+        blocks_layer.setVisible(false);
+
         /** Misiing Construcciones */
-        this.layers = new LayerGroup({ layers: [ this.tileBaseLayers , zones_layer, localities_layer, sectors_layer,township_layer,
-             roads_layer, blocks_layer, properties_layer] });
+        this.layers = new LayerGroup({
+            layers: [this.tileBaseLayers, zones_layer, localities_layer, sectors_layer, township_layer,
+                roads_layer, blocks_layer, properties_layer]
+        });
 
 
 
@@ -493,11 +523,11 @@ export class MapService {
         });
         this.instance.addOverlay(this.measureTooltip);
     }
-// ---------------------------------[INICIO]Historial de navegacion------------------------------
-     
-    InitHistory(){
-        let move:Movement;
-        this.instance.on('moveend',  () => {
+    // ---------------------------------[INICIO]Historial de navegacion------------------------------
+
+    InitHistory() {
+        let move: Movement;
+        this.instance.on('moveend', () => {
             if (this.undo_redo === false) {
                 move = {
                     extent: this.instance.getView().calculateExtent(this.instance.getSize()),
@@ -510,39 +540,39 @@ export class MapService {
         });
 
     }
-// ---------------------------------[FIN]Historial de navegacion------------------------------
+    // ---------------------------------[FIN]Historial de navegacion------------------------------
 
-BackControl(){
-    
+    BackControl() {
+
         if (this.size > 0) {
             this.undo_redo = true;
-            console.log("Back"+this.size);
-            this.instance.getView().fit(this.nav_his[this.size - 1].extent, {size : this.nav_his[this.size - 1].size} );
+            console.log("Back" + this.size);
+            this.instance.getView().fit(this.nav_his[this.size - 1].extent, { size: this.nav_his[this.size - 1].size });
             this.instance.getView().setZoom(this.nav_his[this.size - 1].zoom);
-            setTimeout( () => {
+            setTimeout(() => {
                 this.undo_redo = false;
             }, 360);
             this.size = this.size - 1;
         }
-   
 
-}
 
-NextMoveControl(){
-    
-        if (this.size < (this.nav_his.length -1) ) {
+    }
+
+    NextMoveControl() {
+
+        if (this.size < (this.nav_his.length - 1)) {
             this.undo_redo = true;
-            this.instance.getView().fit(this.nav_his[this.size + 1].extent, {size : this.nav_his[this.size + 1].size});
+            this.instance.getView().fit(this.nav_his[this.size + 1].extent, { size: this.nav_his[this.size + 1].size });
             this.instance.getView().setZoom(this.nav_his[this.size + 1].zoom);
             setTimeout(function () {
                 this.undo_redo = false;
             }, 360);
             this.size = this.size + 1;
         }
-   
-}
 
-PrinterDocument(){
+    }
+
+    PrinterDocument() {
 
         let mapCanvas = document.createElement('canvas');
         mapCanvas.width = 1000;
@@ -552,27 +582,74 @@ PrinterDocument(){
 
         Array.prototype.forEach.call(document.querySelectorAll('.ol-layer canvas'), (canvas) => {
             if (canvas.width > 0) {
-              var opacity = canvas.parentNode.style.opacity;
-              mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
-              var transform = canvas.style.transform;
-              var matrix = transform.match(/^matrix\(([^\(]*)\)$/)[1].split(',').map(Number);
-              CanvasRenderingContext2D.prototype.setTransform.apply(mapContext, matrix);
-              mapContext.drawImage(canvas, 0, 0);
+                var opacity = canvas.parentNode.style.opacity;
+                mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
+                var transform = canvas.style.transform;
+                var matrix = transform.match(/^matrix\(([^\(]*)\)$/)[1].split(',').map(Number);
+                CanvasRenderingContext2D.prototype.setTransform.apply(mapContext, matrix);
+                mapContext.drawImage(canvas, 0, 0);
             }
-          });
+        });
 
 
         var doc = new jsPDF('landscape', 'pt', 'letter');
         doc.addImage(mapCanvas.toDataURL('image/jpeg'), 'jpeg', 30, 50, 700, 500);
         doc.save('mapa.pdf');
-   
+
+
+    }
+
+    // Select Control
+    // Permite seleccionar los predios y mostrar informacion reelevante de ellos.
+    initControlSelectProperty(): void {
+        let selectClick = new Select({
+            condition: click
+        });
+
+        this.instance.addInteraction(selectClick);
+
+        selectClick.on('select', (e: SelectEvent) => {
+            // e.selected[0].getProperties() as //getArray().forEach( index =>{
+            //    console.log( console.log(index, ':', e.selected[0].getProperties()[index].value) );
+            // });
+
+            this.propertySelected = {
+                adeudo: e.selected[0].getProperties()['adeudo'],
+                anos_rezago: e.selected[0].getProperties()['anos_rezago'],
+                bc:  e.selected[0].getProperties()['bc'],
+                cve_cat_ant: e.selected[0].getProperties()['cve_cat_ant'],
+                cve_cat_est: e.selected[0].getProperties()['cve_cat_est'],
+                cve_cat_ori: e.selected[0].getProperties()['cve_cat_ori'],
+                predio_irregular: e.selected[0].getProperties()['predio_irregular'],
+                regimen: e.selected[0].getProperties()['regimen'],
+                status: e.selected[0].getProperties()['status'],
+                string_area: e.selected[0].getProperties()['string_area'],
+                tipo_predio: e.selected[0].getProperties()['tipo_predio'],
+                uso_suelo: e.selected[0].getProperties()['uso_suelo'],
+                usuario_edicion: e.selected[0].getProperties()['usuario_edicion'],
+            };
+
+            this.notify();
+
+        });
+
+        let propertiesSourceSelect = new VectorSource({
+            url: '../../assets/properties_camargo.json',
+            format: new GeoJSON(),
+            useSpatialIndex: false,
+            strategy: bbox
+        });
+
+        let propertiesLayerSelect = new VectorLayer({ source: propertiesSourceSelect });
+        // let propertiesLayerSelect = new VectorLayer({ source: clusterSource });
+
+        this.instance.addLayer(propertiesLayerSelect);
+    }
+
 
 }
 
-}
-
-
-interface Movement{
+interface Movement {
     extent: Extent;
     size: Size
     zoom: number;

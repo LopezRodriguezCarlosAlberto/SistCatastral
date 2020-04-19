@@ -151,8 +151,28 @@
 
             </mat-tab>
             <mat-tab label="Other Tools">
-                <h1>Aquí van otras opciones</h1>
-                <button color="primary" mat-raised-button (click)="openDialog()">Open dialog</button>
+                <h1>Info del predio</h1>
+                <!-- <button color="primary" mat-raised-button (click)="openDialog()">Open dialog</button> -->
+                <label for="field1"> CVA_CAT_ANT  </label>
+                <input id="field1" [value]="modelProperty.cve_cat_ant" > <br>
+
+                <label for="field2"> CVA_CAT_ORI  </label>
+                <input id="field2" [value]="modelProperty.cve_cat_ori" > <br>
+
+                <label for="field3"> STATUS  </label>
+                <input id="field3" [value]="modelProperty.status" > <br>
+
+                <label for="field4"> STRING_AREA  </label>
+                <input id="field4" [value]="modelProperty.string_area" > <br>
+
+                <label for="field5"> TIPO_PREDIO  </label>
+                <input id="field5" [value]="modelProperty.tipo_predio" > <br>
+
+                <label for="field6"> REGIMEN  </label>
+                <input id="field6" [value]="modelProperty.regimen" > <br>
+
+
+                
             </mat-tab>
         </mat-tab-group>
 
@@ -166,7 +186,7 @@
         </mat-toolbar>
 
 
-        <app-map #mymap></app-map>
+        <app-map #mymap (propertySelected)="loadProperty($event)" ></app-map>
     </mat-sidenav-content>
 
 
