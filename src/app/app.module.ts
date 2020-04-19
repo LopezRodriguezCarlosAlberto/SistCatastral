@@ -23,6 +23,7 @@ import { MapService } from './map/map.service';
 import { HttpClientModule } from '@angular/common/http';
 import { DialogComponent } from './dialog/dialog.component';
 import {MatDialogModule} from '@angular/material/dialog';
+import {MatTooltipModule} from '@angular/material/tooltip';
 @NgModule({
   declarations: [
     AppComponent,SidenavComponent,MapComponent, DialogComponent
@@ -45,7 +46,8 @@ import {MatDialogModule} from '@angular/material/dialog';
     MatListModule,
     MatSelectModule,
     MatTabsModule,
-    MatDialogModule
+    MatDialogModule,
+    MatTooltipModule
   ],
   providers: [MapService],
   bootstrap: [AppComponent]

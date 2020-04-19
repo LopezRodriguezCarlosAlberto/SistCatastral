@@ -3,8 +3,8 @@
 
 
     <mat-sidenav #sidenav [(opened)]="opened" mode="side" (opened)="log('Opened')" (closed)="log('Closed')">
-        <h2 style="margin-top: 14px;margin-left: 56px;font-family: Verdana, Geneva, Tahoma, sans-serif ;">Panel de control</h2>
-
+        <!--         <h2 style="margin-top: 14px;margin-left: 56px;font-family: Verdana, Geneva, Tahoma, sans-serif ;">Panel de control</h2> -->
+        <mat-icon style="font-size: 36px;margin-top: 14px;margin-left: 130px;">settings</mat-icon>
 
 
         <mat-tab-group style="background-color: #494949;">
@@ -90,7 +90,7 @@
                         </mat-list-item>
 
                         <mat-list-item style="padding-left: 66px;">
-                            <button mat-raised-button color="primary" (click)='handleClickEvent(cta_orig.value)'>Buscar</button>
+                            <button mat-raised-button color="primary" matTooltip="Buscar" (click)='handleClickEvent(cta_orig.value)'><mat-icon>search</mat-icon></button>
                         </mat-list-item>
                     </mat-list>
                 </mat-expansion-panel>
@@ -120,7 +120,7 @@
                         </mat-list-item>
 
                         <mat-list-item style="padding-left: 66px;">
-                            <button mat-raised-button color="primary" (click)='handleClickMeasureButton(type.value)'>Trazar</button>
+                            <button mat-raised-button color="primary" matTooltip="Trazar" (click)='handleClickMeasureButton(type.value)'><mat-icon>create</mat-icon></button>
                         </mat-list-item>
                     </mat-list>
                 </mat-expansion-panel>
@@ -134,16 +134,12 @@
                     </mat-expansion-panel-header>
 
                     <mat-list>
-                        <mat-list-item style="padding-left: 62px;">
-                            <button mat-raised-button color="primary" (click)='NextClickButton()'>Siguiente</button>
-                        </mat-list-item>
+                        <mat-list-item>
+                            <button mat-raised-button color="primary" matTooltip="Siguiente movimiento" (click)='NextClickButton()'><mat-icon>skip_next</mat-icon></button>
 
-                        <mat-list-item style="padding-left: 62px;">
-                            <button mat-raised-button color="primary" (click)='BackClickButton()'>Regresar</button>
-                        </mat-list-item>
+                            <button style="margin-left: 17px" mat-raised-button color="primary" matTooltip="Anterior movimiento" (click)='BackClickButton()'><mat-icon>skip_previous</mat-icon></button>
 
-                        <mat-list-item style="padding-left: 66px;">
-                            <button mat-raised-button color="primary" (click)="Printer()"> Imprimir</button>
+                            <button style="margin-left: 17px" mat-raised-button color="primary" matTooltip="Descargar pdf" (click)="Printer()"><mat-icon>picture_as_pdf</mat-icon></button>
                         </mat-list-item>
                     </mat-list>
                 </mat-expansion-panel>
