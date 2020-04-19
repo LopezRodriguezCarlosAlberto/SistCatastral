@@ -1,0 +1,27 @@
+.ol-zoom {
+    top: 4em;
+    left: auto;
+    right: .5em;
+}
+
+.ol-rotate {
+    top: .5em;
+    right: .5em;
+    transition: opacity .25s linear, visibility 0s linear;
+}
+
+.ol-rotate.ol-hidden {
+    opacity: 100;
+    visibility: visible;
+    transition: opacity .25s linear, visibility 0s linear .25s;
+}
+
+.ol-zoom-extent {
+    top: 4.643em;
+    left: .5em;
+}
+
+.ol-full-screen {
+    right: .5em;
+    top: 2.3em;
+}
