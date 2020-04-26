@@ -25,9 +25,14 @@ import { DialogComponent } from './dialog/dialog.component';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatInputModule} from '@angular/material/input';
+
+import { AgmCoreModule } from '@agm/core';
+import { GoogleMapsComponent } from './google-maps/google-maps.component';
+import { MarketComponent } from './map/market/market/market.component';
+
 @NgModule({
   declarations: [
-    AppComponent,SidenavComponent,MapComponent, DialogComponent
+    AppComponent,SidenavComponent,MapComponent, DialogComponent, GoogleMapsComponent, MarketComponent
   ],exports:[MatSidenavModule],
   imports: [
     BrowserModule,
@@ -50,7 +55,8 @@ import {MatInputModule} from '@angular/material/input';
     MatDialogModule,
     MatTooltipModule,
     MatInputModule,
-     NguiMapModule.forRoot({apiUrl: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyC_9BCFea7nrIi2jGyjnC5EP6hx9udoMlU'})
+     NguiMapModule.forRoot({apiUrl: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyC_9BCFea7nrIi2jGyjnC5EP6hx9udoMlU'}),
+     AgmCoreModule.forRoot({apiKey: 'AIzaSyChg0ncJgZdqvTgkWiLTpaoT4WDx6w2b_Q',libraries: ['places']})
   ],
   providers: [MapService],
   bootstrap: [AppComponent]
