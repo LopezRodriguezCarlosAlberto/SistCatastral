@@ -77,6 +77,7 @@ export class SidenavComponent implements OnInit{
 
 
   openDialog() {
+    console.log(this.myMap.getMapService().getPositionY());
     const dialogRef = this.dialog.open(DialogComponent);
     
     dialogRef.afterClosed().subscribe(result => {

@@ -1,10 +1,7 @@
-<h2 mat-dialog-title>Install Angular</h2>
+<h2 mat-dialog-title>Street View </h2>
 <mat-dialog-content class="mat-typography">
-
-    <mat-label
-
+    <p> </p>
+    <ngui-map style="height: 500;width: 500px;" zoom="14" center='{{mapCor.getPositionY()}},{{mapCor.getPositionX()}}'>
+        <street-view-panorama position='{{mapCor.getPositionY()}},{{mapCor.getPositionX()}}' pov="{heading: 165, pitch: 0}" zoom="1"></street-view-panorama>
+    </ngui-map>
 </mat-dialog-content>
-<mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close>Cancel</button>
-    <button mat-button [mat-dialog-close]="true" cdkFocusInitial>Install</button>
-</mat-dialog-actions>

@@ -146,49 +146,66 @@
                 <!-- ---------------------------------------- FIN TOOL OPTIONS------------------------------------------------>
 
             </mat-tab>
-            <mat-tab label="Other Tools">
-                <h1>Info del predio</h1>
-                <!-- <button color="primary" mat-raised-button (click)="openDialog()">Open dialog</button> -->
-                <label for="field1"> CVA_CAT_ANT  </label>
-                <input id="field1" [value]="modelProperty.cve_cat_ant" > <br>
+            <mat-tab label="Información del predio">
+                <br><br>
+                <mat-list>
+                    <mat-list-item style="padding-left: 6px;">
+                        <mat-form-field>
+                            <mat-label>CVA_CAT_ANT</mat-label>
+                            <input matInput id="field1" [value]="modelProperty.cve_cat_ant" placeholder="Codigo">
+                        </mat-form-field>
+                    </mat-list-item>
 
-                <label for="field2"> CVA_CAT_ORI  </label>
-                <input id="field2" [value]="modelProperty.cve_cat_ori" > <br>
+                    <mat-list-item style="padding-left: 6px;">
+                        <mat-form-field>
+                            <mat-label for="field2">CVA_CAT_ORI </mat-label>
+                            <input matInput id="field2" [value]="modelProperty.cve_cat_ori" placeholder="Codigo">
+                        </mat-form-field>
+                    </mat-list-item>
 
-                <label for="field3"> STATUS  </label>
-                <input id="field3" [value]="modelProperty.status" > <br>
+                    <mat-list-item style="padding-left: 6px;">
+                        <mat-form-field>
+                            <mat-label for="field3">STATUS</mat-label>
+                            <input matInput id="field3" [value]="modelProperty.status" placeholder="Codigo">
+                        </mat-form-field>
+                    </mat-list-item>
+                    <mat-list-item style="padding-left: 6px;">
+                        <mat-form-field>
+                            <mat-label for="field4">STRING_AREA</mat-label>
+                            <input matInput id="field4" [value]="modelProperty.string_area" placeholder="Codigo">
+                        </mat-form-field>
+                    </mat-list-item>
 
-                <label for="field4"> STRING_AREA  </label>
-                <input id="field4" [value]="modelProperty.string_area" > <br>
-
-                <label for="field5"> TIPO_PREDIO  </label>
-                <input id="field5" [value]="modelProperty.tipo_predio" > <br>
-
-                <label for="field6"> REGIMEN  </label>
-                <input id="field6" [value]="modelProperty.regimen" > <br>
+                    <mat-list-item style="padding-left: 6px;">
+                        <mat-form-field>
+                            <mat-label for="field5">TIPO_PREDIO</mat-label>
+                            <input matInput id="field5" [value]="modelProperty.tipo_predio" placeholder="Codigo">
+                        </mat-form-field>
+                    </mat-list-item>
 
 
-                
+                    <mat-list-item style="padding-left: 6px;">
+                        <mat-form-field>
+                            <mat-label for="field6"> REGIMEN </mat-label>
+                            <input matInput id="field6" [value]="modelProperty.regimen" placeholder="Codigo">
+                        </mat-form-field>
+                    </mat-list-item>
+                </mat-list>
+            </mat-tab>
+            <mat-tab label="Street View">
+                <mat-list>
+                    <mat-list-item>
+                        <button mat-raised-button color="primary" (click)="openDialog()">Street View</button>
+                    </mat-list-item>
+                </mat-list>
             </mat-tab>
         </mat-tab-group>
-
-
     </mat-sidenav>
-
     <mat-sidenav-content>
         <mat-toolbar style="background-color: #3f51b5;" class="example-toolbar">
             <button mat-icon-button (click)="sidenav.toggle()"><mat-icon>menu</mat-icon></button>
             <h1 class="example-app-name">Sistema Catastral</h1>
         </mat-toolbar>
-
-
-        <app-map #mymap (propertySelected)="loadProperty($event)" ></app-map>
+        <app-map #mymap (propertySelected)="loadProperty($event)"></app-map>
     </mat-sidenav-content>
-
-
-
-
-
-
-
 </mat-sidenav-container>

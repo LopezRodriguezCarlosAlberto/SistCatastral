@@ -7,8 +7,7 @@ import Observable from '../core/Observable.interface';
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
-  styleUrls: ['./map.component.css'],
-  providers: [MapService]
+  styleUrls: ['./map.component.css']
 })
 export class MapComponent implements AfterViewInit, Observer{
 

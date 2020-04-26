@@ -48,7 +48,11 @@ import { unByKey } from 'ol/Observable';
 import Observable from '../core/Observable.interface';
 import Property from '../core/property.interface';
 import Observer from '../core/Observer.interface';
-@Injectable()
+import Icon from 'ol/style/Icon';
+import Point from 'ol/geom/Point';
+@Injectable({
+    providedIn: 'platform',
+  })
 export class MapService implements Observable {
 
     private instance: Map;
@@ -73,7 +77,7 @@ export class MapService implements Observable {
     continueLineMsg: string;
     helpTooltipElement: HTMLDivElement;
     helpTooltip: Overlay;
-
+    coordinates: Coordinate;
     public nav_his: Movement[];
     size = 0;
     undo_redo = false;
@@ -128,7 +132,9 @@ export class MapService implements Observable {
         this.instance.addInteraction(new DragRotateAndZoom);
         this.InitHistory();
 
-        this.initControlSelectProperty();
+        //this.initControlSelectProperty();
+        this.Point();
+        
     }
 
 
@@ -646,6 +652,22 @@ export class MapService implements Observable {
         this.instance.addLayer(propertiesLayerSelect);
     }
 
+    Point(){
+        this.instance.on('click', (evt: MapBrowserEvent) => {
+           this.coordinates = transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326');
+            });
+    }
+
+    getPositionX(){
+        return this.coordinates[0];
+        
+    }
+
+    getPositionY(){
+        return this.coordinates[1];
+    }
+
+   
 
 }
 
