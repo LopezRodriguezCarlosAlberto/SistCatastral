@@ -5,7 +5,7 @@ import LayerGroup from 'ol/layer/Group';
 import Layer from 'ol/layer/Layer';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
-import { transform } from 'ol/proj';
+import { transform, fromLonLat } from 'ol/proj';
 import XYZ from 'ol/source/XYZ';
 import VectorLayer from 'ol/layer/Vector';
 import TileWMS from 'ol/source/TileWMS';
@@ -50,9 +50,18 @@ import Property from '../core/property.interface';
 import Observer from '../core/Observer.interface';
 import Icon from 'ol/style/Icon';
 import Point from 'ol/geom/Point';
+
+import proj4 from 'proj4';
+import { get as getProjection } from 'ol/proj';
+import { register } from 'ol/proj/proj4';
+
+export const DEFAULT_ANCHOR = [0.5, 1];
+export const DEFAULT_ICON = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAMAAAC7IEhfAAAAyVBMVEUAAADnTDznTDvnTDvnTDvAOCrnTDznSzvnTDvAOCvnTDznTDznTDvnTDzAOCrnTDvnTDvnTDvnTDznTDvAOSrnTDznTDzTQjLSQjPnTDzpTDvnSzvAOCrnTDvAOSvAOCvnSzvnTDzAOCvnSzznTDznTDvnTDy/OCvnTDznTDvnTDznSzvmSzvAOCvnTDzAOCvnTDvmTDvAOCq+OCrpTDzkSzrbRjbWRDTMPi+8NinrTT3EOy3gSDjTQjPPQDLHPS/DOiu5NCjHPC5jSfbDAAAAMHRSTlMAKPgE4hr8CfPy4NzUt7SxlnpaVlRPIhYPLgLt6ebOysXAwLmej4iGgGtpYkpAPCBw95QiAAAB50lEQVQ4y42T13aDMAxAbVb2TrO6927lwQhktf//UZWVQ1sIJLnwwBEXWZYwy1Lh/buG5TXu+rzC9nByDQCCbrg+KdUmLUsgW08IqzUp9rgDf5Ds8CJv1KS3mNL3fbGlOdr1Kh1AtFgs15vke7kQGpDO7pYGtJgfbRSxiXxaf7AjgsFfy1/WPu0r73WpwGiu1Fn78bF9JpWKUBTQzYlNQIK5lDcuQ9wbKeeBiTWz3vgUv44TpS4njJhcKpXEuMzpOCN+VE2FmPA9jbxjSrOf6kdG7FvYmkBJ6aYRV0oVYIusfkZ8xeHpUMna+LeYmlShxkG+Zv8GyohLf6aRzzRj9t+YVgWaX1IO08hQyi9tapxmB3huxJUp8q/EVYzB89wQr0y/FwqrHLqoDWsoLsxQr1iWNxp1iCnlRbt9IdELwfDGcrSMKJbGxLx4LenTFsszFSYehwl6aCZhTNPnO6LdBYOGYBVFqwAfDF27+CQIvLUGrTU9lpyFBw9yeA+sCNsRkJ5WQjg2K+QFcrywEjoCBHVpe3VYGZyk9NQCLxXte/jHvc1K4XXKSNQ520PPtIhcr8f2MXPShNiavTyn4jM7wK0g75YdYgTE6KA465nN9GbsILwhoMHZETx53hM7Brtet9lRDAYFwR80rG+sfAnbpQAAAABJRU5ErkJggg==';
+
+
 @Injectable({
     providedIn: 'platform',
-  })
+})
 export class MapService implements Observable {
 
     private instance: Map;
@@ -68,6 +77,10 @@ export class MapService implements Observable {
     // Measure interaction
     private measureSource: VectorSource;
     private measureLayer: VectorLayer;
+
+    // Market
+    private marketSource: VectorSource;
+    private marketLayer: VectorLayer;
 
     private sketch: Feature;
 
@@ -89,6 +102,8 @@ export class MapService implements Observable {
 
     // Observa el cambio en propertySelected
     observer: Observer;
+    marker: Feature<Geometry>;
+    icon: Style;
 
 
 
@@ -97,11 +112,17 @@ export class MapService implements Observable {
     constructor(private http: HttpClient) {
         this.instance = new Map({});
         this.nav_his = new Array<Movement>();
+
+        proj4.defs('EPSG:32613', '+proj=utm +zone=13 +datum=WGS84 +units=m +no_defs');
+        register(proj4);
+        let proj32613 = getProjection('EPSG:32613');
+        // proj32613.setExtent([-4194304, -4194304, 4194304, 4194304]);
+
     }
     addObserver(observer: Observer): void {
         this.observer = observer;
     }
-    removeObserver(observer: Observer) {}
+    removeObserver(observer: Observer) { }
 
     notify(): void {
         this.observer.update(this, this.propertySelected);
@@ -132,9 +153,12 @@ export class MapService implements Observable {
         this.instance.addInteraction(new DragRotateAndZoom);
         this.InitHistory();
 
+        this.setupSelectPropertyInteraction();
+
         //this.initControlSelectProperty();
+        this.initMarketLayer();
         this.Point();
-        
+
     }
 
 
@@ -605,69 +629,135 @@ export class MapService implements Observable {
 
     }
 
-    // Select Control
-    // Permite seleccionar los predios y mostrar informacion reelevante de ellos.
-    initControlSelectProperty(): void {
-        let selectClick = new Select({
-            condition: click
-        });
 
-        this.instance.addInteraction(selectClick);
-
-        selectClick.on('select', (e: SelectEvent) => {
-            // e.selected[0].getProperties() as //getArray().forEach( index =>{
-            //    console.log( console.log(index, ':', e.selected[0].getProperties()[index].value) );
-            // });
-
-            this.propertySelected = {
-                adeudo: e.selected[0].getProperties()['adeudo'],
-                anos_rezago: e.selected[0].getProperties()['anos_rezago'],
-                bc:  e.selected[0].getProperties()['bc'],
-                cve_cat_ant: e.selected[0].getProperties()['cve_cat_ant'],
-                cve_cat_est: e.selected[0].getProperties()['cve_cat_est'],
-                cve_cat_ori: e.selected[0].getProperties()['cve_cat_ori'],
-                predio_irregular: e.selected[0].getProperties()['predio_irregular'],
-                regimen: e.selected[0].getProperties()['regimen'],
-                status: e.selected[0].getProperties()['status'],
-                string_area: e.selected[0].getProperties()['string_area'],
-                tipo_predio: e.selected[0].getProperties()['tipo_predio'],
-                uso_suelo: e.selected[0].getProperties()['uso_suelo'],
-                usuario_edicion: e.selected[0].getProperties()['usuario_edicion'],
-            };
-
-            this.notify();
-
-        });
-
-        let propertiesSourceSelect = new VectorSource({
-            url: '../../assets/properties_camargo.json',
-            format: new GeoJSON(),
-            useSpatialIndex: false,
-            strategy: bbox
-        });
-
-        let propertiesLayerSelect = new VectorLayer({ source: propertiesSourceSelect });
-        // let propertiesLayerSelect = new VectorLayer({ source: clusterSource });
-
-        this.instance.addLayer(propertiesLayerSelect);
-    }
-
-    Point(){
+    Point() {
         this.instance.on('click', (evt: MapBrowserEvent) => {
-           this.coordinates = transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326');
-            });
+            // add market
+            this.addMarket(evt.coordinate, this.view.getProjection().getCode());
+            // Transform coordinates to latitute-longitude for Street view purposes
+            this.coordinates = transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326');
+
+        });
+
+        // add Market
     }
 
-    getPositionX(){
+    getPositionX() {
         return this.coordinates[0];
-        
+
     }
 
-    getPositionY(){
+    getPositionY() {
         return this.coordinates[1];
     }
 
-   
+    initMarketLayer(): void {
+
+        this.icon = new Style({
+            image: new Icon({
+                anchor: DEFAULT_ANCHOR,
+                src: DEFAULT_ICON
+            })
+        });
+
+
+
+        this.marketSource = new VectorSource({
+            // features: [this.marker]
+        });
+
+        this.marketLayer = new VectorLayer({
+            source: this.marketSource
+        });
+
+        this.instance.addLayer(this.marketLayer);
+    }
+
+
+    /**
+     * 
+     * @param coordinate_  Coordenada en la misma proyeccion que la de la vista
+     */
+    addMarket(coordinate_: Coordinate, projSource: string): void {
+        this.marketSource.clear();
+
+        // Transform coordinate projection to correct view projection        
+        let newCoordinates = projSource === this.view.getProjection().getCode() ?
+            coordinate_ : transform(coordinate_, projSource, this.view.getProjection() );
+        
+        this.marker = new Feature({ geometry: new Point(newCoordinates) });
+        this.marker.setStyle(this.icon);
+
+        this.marketSource.addFeature(this.marker);
+    }
+
+    setupSelectPropertyInteraction(): void {
+
+        this.instance.on('click', (evt: MapBrowserEvent) => {
+
+            let coordinates: Coordinate = evt.coordinate;
+            coordinates = transform([coordinates[0], coordinates[1]], 'EPSG:3857', 'EPSG:32613');
+
+            let url = "http://187.189.192.102:8080/geoserver/GDB08011/ows?";
+            url += "service=WFS&";
+            url += "version=1.0.0&";
+            url += "request=GetFeature&";
+            url += "typeName=GDB08011%3Ap&";
+            url += "maxFeatures=2&";
+            url += "outputFormat=application%2Fjson&";
+            url += "srsname=epsg:3857&"
+            url += "cql_filter=contains(geom,point(" + coordinates[0] + " " + coordinates[1] + "))";
+
+            // url.
+
+            this.http.get(url).subscribe(response => {
+                // Handle Response
+                new GeoJSON().readFeatures(response).forEach(
+                    (feature: Feature<Geometry>, index: number, features: Feature<Geometry>[]) => {
+                        this.propertyVectorSource.addFeature(feature);
+
+                    });
+
+                // Zoom to property
+                if (this.propertyVectorSource.getFeatures().length > 0) {
+                    // console.log('Zoom');
+                    let featureSelected: Feature<Geometry> = this.propertyVectorSource.
+                        getFeaturesCollection().getArray()[this.propertyVectorSource.getFeatures().length - 1];
+                    const extent: Extent = featureSelected.getGeometry().getExtent();
+
+                    this.propertySelected = {
+                        adeudo: featureSelected.getProperties()['adeudo'],
+                        anos_rezago: featureSelected.getProperties()['anos_rezago'],
+                        bc: featureSelected.getProperties()['bc'],
+                        cve_cat_ant: featureSelected.getProperties()['cve_cat_ant'],
+                        cve_cat_est: featureSelected.getProperties()['cve_cat_est'],
+                        cve_cat_ori: featureSelected.getProperties()['cve_cat_ori'],
+                        predio_irregular: featureSelected.getProperties()['predio_irregular'],
+                        regimen: featureSelected.getProperties()['regimen'],
+                        status: featureSelected.getProperties()['status'],
+                        string_area: featureSelected.getProperties()['string_area'],
+                        tipo_predio: featureSelected.getProperties()['tipo_predio'],
+                        uso_suelo: featureSelected.getProperties()['uso_suelo'],
+                        usuario_edicion: featureSelected.getProperties()['usuario_edicion'],
+                    };
+
+                    this.notify();
+
+                    // this.view.fit(extent, { maxZoom: this.MAX_ZOOM_FIT_VIEW });
+                    this.view.fit(extent);
+                } else {
+                    alert('No se encontré algún Predio con ese Numero');
+                }
+            });
+        });
+
+    }
+
+
+
+
+    //getters and setter
+    getMap(): Map { return this.instance; }
 
 }
 
