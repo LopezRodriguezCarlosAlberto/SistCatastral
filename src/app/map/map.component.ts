@@ -18,6 +18,7 @@ export class MapComponent implements AfterViewInit, Observer{
   DEFAULT_BASE_LAYER = 1;
 
   constructor(private mapFacade: MapService) {
+    this.propertySelected = new EventEmitter<Property>();
   }
 
   ngAfterViewInit(): void {
