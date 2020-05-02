@@ -3,6 +3,7 @@ import { MapComponent } from '../map/map.component';
 import {MatDialog} from '@angular/material/dialog';
 import { DialogComponent } from '../dialog/dialog.component';
 import Property from '../core/property.interface';
+import { Coordinate } from 'ol/coordinate';
 @Component({
   selector: 'app-sidenav',
   templateUrl: './sidenav.component.html',
@@ -57,7 +58,7 @@ export class SidenavComponent implements OnInit{
   }
 
   handleClickMeasureButton(type: string): void {
-    this.myMap.getMapService().addInteraction(type);
+    this.myMap.getMapService().onceDrawInteraction(type);
     console.log('In progress:', type);
   }
 
@@ -82,7 +83,21 @@ export class SidenavComponent implements OnInit{
     
     dialogRef.afterClosed().subscribe(result => {
       console.log(`Dialog result: ${result}`);
-    })};
+    });};
 
+    
+    enableFocusOnProperty(): void {
+      this.myMap.getMapService().oncePropertyInteraction();
+    }
+
+    enableAddMarkerByClick(): void{
+      this.myMap.getMapService().oncePoint();
+
+    }
+
+    addMarker(coordinates: Coordinate) {
+      this.myMap.getMapService().addMarket(coordinates, 'EPSG:4326');
+      this.myMap.getMapService().centerAndZoomView(coordinates, 'EPSG:4326');
+    }
   
 }

@@ -1,10 +1,11 @@
-import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone, Output, EventEmitter } from '@angular/core';
 import { MapsAPILoader, MouseEvent } from '@agm/core';
 import { MapService } from '../map/map.service';
 import Projection from 'ol/proj/Projection';
+import { Coordinate } from 'ol/coordinate';
  
 @Component({
-  selector: 'app-google-maps',
+  selector: 'goo-box-search',
   templateUrl: './google-maps.component.html',
   styleUrls: []
 })
@@ -17,6 +18,10 @@ export class GoogleMapsComponent implements OnInit {
   address: string;
   private geoCoder;
 
+  // coordinate: Coordinate;
+
+  @Output() coordinateChange: EventEmitter<Coordinate>;
+
   @ViewChild('search')
   public searchElementRef: ElementRef;
  
@@ -24,7 +29,7 @@ export class GoogleMapsComponent implements OnInit {
     private mapsAPILoader: MapsAPILoader,
     private ngZone: NgZone,
     private map: MapService
-  ) { }
+  ) { this.coordinateChange = new EventEmitter<Coordinate>();}
 
   ngOnInit() {
     //load Places Autocomplete
@@ -43,15 +48,12 @@ export class GoogleMapsComponent implements OnInit {
             return;
           }
  
-          //set latitude, longitude and zoom
+          //set latitude, longitude and fire Event
           this.latitude = place.geometry.location.lat();
           this.longitude = place.geometry.location.lng();
-          this.zoom = 12;
 
-          this.map.addMarket( [this.longitude, this.latitude], 'EPSG:4326') ;
+          this.coordinateChange.emit([this.longitude, this.latitude]);
 
-
-          
         });
       });
     });

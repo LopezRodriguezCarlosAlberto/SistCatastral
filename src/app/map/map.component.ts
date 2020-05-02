@@ -11,14 +11,13 @@ import Observable from '../core/Observable.interface';
 })
 export class MapComponent implements AfterViewInit, Observer{
 
-  @Output() propertySelected: EventEmitter<Property>;;
+  @Output() propertySelected: EventEmitter<Property>;
 
   @ViewChild('map') containerMap: ElementRef;
 
   DEFAULT_BASE_LAYER = 1;
 
-  constructor(private mapFacade: MapService) { 
-    this.propertySelected = new EventEmitter<Property>();
+  constructor(private mapFacade: MapService) {
   }
 
   ngAfterViewInit(): void {

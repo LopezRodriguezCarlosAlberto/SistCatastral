@@ -81,18 +81,34 @@
 
                 <mat-expansion-panel>
                     <mat-expansion-panel-header>
-                        <mat-panel-title>Vector </mat-panel-title>
+                        <mat-panel-title> Property Actions </mat-panel-title>
                     </mat-expansion-panel-header>
 
                     <mat-list>
                         <mat-list-item>
-                            <input style="width: 208px;" id="fname" name="fname" #cta_orig>
+                            <mat-form-field>
+                                <mat-label for="fname">Buscar por CVA_ORIG </mat-label>
+                                <input matInput placeholder="CTA_ORIG" style="width: 208px;" id="fname" #cta_orig>
+                            </mat-form-field>
+                            <button mat-raised-button color="primary" matTooltip="Buscar" (click)='handleClickEvent(cta_orig.value)'><mat-icon>search</mat-icon></button>
                         </mat-list-item>
 
                         <mat-list-item style="padding-left: 66px;">
-                            <button mat-raised-button color="primary" matTooltip="Buscar" (click)='handleClickEvent(cta_orig.value)'><mat-icon>search</mat-icon></button>
+                            <button mat-raised-button color="primary" matTooltip="Centrar en el predio Seleccionado" (click)='enableFocusOnProperty()'><mat-icon>center_focus_weak</mat-icon></button>
+                        </mat-list-item>
+
+                        <mat-list-item style="padding-left: 66px;">
+                            <button mat-raised-button color="primary" matTooltip="Añadir un Marcador" (click)='enableAddMarkerByClick()'><mat-icon>pin_drop</mat-icon></button>
+                        </mat-list-item>
+
+
+                        <mat-list-item >
+                           <goo-box-search (coordinateChange)='addMarker($event)'></goo-box-search>
                         </mat-list-item>
                     </mat-list>
+
+
+
                 </mat-expansion-panel>
 
                 <!-- ---------------------------------------- FIN VECTOR------------------------------------------------>

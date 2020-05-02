@@ -54,6 +54,7 @@ import Point from 'ol/geom/Point';
 import proj4 from 'proj4';
 import { get as getProjection } from 'ol/proj';
 import { register } from 'ol/proj/proj4';
+import Text from 'ol/style/Text';
 
 export const DEFAULT_ANCHOR = [0.5, 1];
 export const DEFAULT_ICON = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAMAAAC7IEhfAAAAyVBMVEUAAADnTDznTDvnTDvnTDvAOCrnTDznSzvnTDvAOCvnTDznTDznTDvnTDzAOCrnTDvnTDvnTDvnTDznTDvAOSrnTDznTDzTQjLSQjPnTDzpTDvnSzvAOCrnTDvAOSvAOCvnSzvnTDzAOCvnSzznTDznTDvnTDy/OCvnTDznTDvnTDznSzvmSzvAOCvnTDzAOCvnTDvmTDvAOCq+OCrpTDzkSzrbRjbWRDTMPi+8NinrTT3EOy3gSDjTQjPPQDLHPS/DOiu5NCjHPC5jSfbDAAAAMHRSTlMAKPgE4hr8CfPy4NzUt7SxlnpaVlRPIhYPLgLt6ebOysXAwLmej4iGgGtpYkpAPCBw95QiAAAB50lEQVQ4y42T13aDMAxAbVb2TrO6927lwQhktf//UZWVQ1sIJLnwwBEXWZYwy1Lh/buG5TXu+rzC9nByDQCCbrg+KdUmLUsgW08IqzUp9rgDf5Ds8CJv1KS3mNL3fbGlOdr1Kh1AtFgs15vke7kQGpDO7pYGtJgfbRSxiXxaf7AjgsFfy1/WPu0r73WpwGiu1Fn78bF9JpWKUBTQzYlNQIK5lDcuQ9wbKeeBiTWz3vgUv44TpS4njJhcKpXEuMzpOCN+VE2FmPA9jbxjSrOf6kdG7FvYmkBJ6aYRV0oVYIusfkZ8xeHpUMna+LeYmlShxkG+Zv8GyohLf6aRzzRj9t+YVgWaX1IO08hQyi9tapxmB3huxJUp8q/EVYzB89wQr0y/FwqrHLqoDWsoLsxQr1iWNxp1iCnlRbt9IdELwfDGcrSMKJbGxLx4LenTFsszFSYehwl6aCZhTNPnO6LdBYOGYBVFqwAfDF27+CQIvLUGrTU9lpyFBw9yeA+sCNsRkJ5WQjg2K+QFcrywEjoCBHVpe3VYGZyk9NQCLxXte/jHvc1K4XXKSNQ520PPtIhcr8f2MXPShNiavTyn4jM7wK0g75YdYgTE6KA465nN9GbsILwhoMHZETx53hM7Brtet9lRDAYFwR80rG+sfAnbpQAAAABJRU5ErkJggg==';
@@ -95,7 +96,7 @@ export class MapService implements Observable {
     size = 0;
     undo_redo = false;
     // Constants
-    MAX_ZOOM_FIT_VIEW = 18;
+    MAX_ZOOM_FIT_VIEW = 19;
 
 
     propertySelected: Property;
@@ -106,6 +107,8 @@ export class MapService implements Observable {
     icon: Style;
 
 
+
+    css: string = '.ol-tooltip{position:relative;background:rgba(0,0,0,0.5);border-radius:4px;color:white;padding:4px 8px;opacity:.7;white-space:nowrap;font-size:12px}.ol-tooltip-measure{opacity:1;font-weight:bold}.ol-tooltip-static{background-color:#fc3;color:black;border:1px solid white}.ol-tooltip-measure:before,.ol-tooltip-static:before{border-top:6px solid rgba(0,0,0,0.5);border-right:6px solid transparent;border-left:6px solid transparent;content:"";position:absolute;bottom:-6px;margin-left:-7px;left:50%}.ol-tooltip-static:before{border-top-color:#fc3};';
 
 
 
@@ -153,11 +156,8 @@ export class MapService implements Observable {
         this.instance.addInteraction(new DragRotateAndZoom);
         this.InitHistory();
 
-        this.setupSelectPropertyInteraction();
-
-        //this.initControlSelectProperty();
+        // Marker
         this.initMarketLayer();
-        this.Point();
 
     }
 
@@ -248,9 +248,6 @@ export class MapService implements Observable {
         let roads_layer = new ImageLayer({ source: roads_source });
         let blocks_layer = new ImageLayer({ source: blocks_source });
         let properties_layer = new TileLayer({ source: properties_source });
-
-        properties_layer.setVisible(false);
-        blocks_layer.setVisible(false);
 
         /** Misiing Construcciones */
         this.layers = new LayerGroup({
@@ -346,6 +343,12 @@ export class MapService implements Observable {
 
     private initInteraction(): void {
 
+        let cssElement = document.createElement('style');
+        document.head.appendChild(cssElement);
+        cssElement.textContent = this.css;
+
+        document.head.append('<style> ' + this.css + ' </style>');
+
         this.continuePolygonMsg = 'Click to continue drawing the polygon';
         this.continueLineMsg = 'Click to continue drawing the line';
 
@@ -368,7 +371,7 @@ export class MapService implements Observable {
 
     }
 
-    addInteraction(_type: string): void {
+    onceDrawInteraction(_type: string): void {
         const type: GeometryType = (_type === 'area' ? GeometryType.POLYGON : GeometryType.LINE_STRING);
 
         this.createHelpTooltip();
@@ -384,10 +387,15 @@ export class MapService implements Observable {
                     color: 'rgba(255, 255, 255, 0.2)'
                 }),
                 stroke: new Stroke({
-                    color: 'rgba(0, 0, 0, 0.5)',
+                    color: '#ffcc33',
                     lineDash: [10, 10],
                     width: 2
                 }),
+                text: new Text({
+                    backgroundStroke: new Stroke({color: '#000000'}),
+                    stroke: new Stroke({color: '#FFFFFF'})
+                }),
+
             })
         });
 
@@ -428,7 +436,12 @@ export class MapService implements Observable {
             });
 
         draw.on('drawend',
-            () => {
+            () => {                
+                if (this.helpTooltipElement) {
+                    this.helpTooltipElement.parentNode.removeChild(this.helpTooltipElement);
+                }
+                this.helpTooltipElement = null;
+
                 this.measureTooltipElement.className = 'ol-tooltip ol-tooltip-static';
                 this.measureTooltip.setOffset([0, -7]);
                 // unset sketch
@@ -489,7 +502,7 @@ export class MapService implements Observable {
     formatLength(line: LineString): string {
         let length: number = line.getLength();
         let output: string;
-        if (length > 100) {
+        if (length > 1000) {
             output = (Math.round(length / 1000 * 100) / 100) +
                 ' ' + 'km';
         } else {
@@ -508,8 +521,8 @@ export class MapService implements Observable {
     formatArea(polygon: Polygon): string {
         let area: number = polygon.getArea();
         let output: string;
-        if (area > 10000) {
-            output = (Math.round(area / 1000000 * 100) / 100) +
+        if (area > 1000) {
+            output = (Math.round(area / 1000 * 100) / 100) +
                 ' ' + 'km<sup>2</sup>';
         } else {
             output = (Math.round(area * 100) / 100) +
@@ -546,6 +559,7 @@ export class MapService implements Observable {
         }
         this.measureTooltipElement = document.createElement('div');
         this.measureTooltipElement.className = 'ol-tooltip ol-tooltip-measure';
+
         this.measureTooltip = new Overlay({
             element: this.measureTooltipElement,
             offset: [0, -15],
@@ -630,14 +644,20 @@ export class MapService implements Observable {
     }
 
 
-    Point() {
-        this.instance.on('click', (evt: MapBrowserEvent) => {
+    /**
+     * Permite que al hacer click se agregue un marcador
+     *  Carga la informacion de la posicion de ese marcador
+     * Remueve el evento  una vez finalizado
+     */
+    oncePoint() {
+        const listener = (evt: MapBrowserEvent) => {
             // add market
             this.addMarket(evt.coordinate, this.view.getProjection().getCode());
             // Transform coordinates to latitute-longitude for Street view purposes
             this.coordinates = transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326');
-
-        });
+            this.instance.removeEventListener('click', listener);
+        };
+        this.instance.on('click', listener);
 
         // add Market
     }
@@ -651,6 +671,9 @@ export class MapService implements Observable {
         return this.coordinates[1];
     }
 
+    /**
+     * Inicializa el Source Vector y Layer Vector
+     */
     initMarketLayer(): void {
 
         this.icon = new Style({
@@ -675,13 +698,15 @@ export class MapService implements Observable {
 
 
     /**
+     * Añade un marcador a la posicion especificada
+     * Borra los demás marcadores
      * 
      * @param coordinate_  Coordenada en la misma proyeccion que la de la vista
      */
     addMarket(coordinate_: Coordinate, projSource: string): void {
         this.marketSource.clear();
 
-        // Transform coordinate projection to correct view projection        
+        // Transform coordinate projection to correct view projection
         let newCoordinates = projSource === this.view.getProjection().getCode() ?
             coordinate_ : transform(coordinate_, projSource, this.view.getProjection() );
         
@@ -691,13 +716,16 @@ export class MapService implements Observable {
         this.marketSource.addFeature(this.marker);
     }
 
-    setupSelectPropertyInteraction(): void {
-
-        this.instance.on('click', (evt: MapBrowserEvent) => {
-
+    /**
+     *  Permite que al hacer CLICK en una parte del Mapa se obtenga la informacion del predio
+     *  La informacion se carga en la Pestaña de 'Informacion del Predio'
+     *  y el mapa se centra en dicho predio
+     * Limpia los demmás predios seleccionados
+     */
+    oncePropertyInteraction(): void {
+        const listener = (evt: MapBrowserEvent) => {
             let coordinates: Coordinate = evt.coordinate;
             coordinates = transform([coordinates[0], coordinates[1]], 'EPSG:3857', 'EPSG:32613');
-
             let url = "http://187.189.192.102:8080/geoserver/GDB08011/ows?";
             url += "service=WFS&";
             url += "version=1.0.0&";
@@ -708,21 +736,21 @@ export class MapService implements Observable {
             url += "srsname=epsg:3857&"
             url += "cql_filter=contains(geom,point(" + coordinates[0] + " " + coordinates[1] + "))";
 
-            // url.
+
+            this.propertyVectorSource.clear();
 
             this.http.get(url).subscribe(response => {
                 // Handle Response
                 new GeoJSON().readFeatures(response).forEach(
                     (feature: Feature<Geometry>, index: number, features: Feature<Geometry>[]) => {
                         this.propertyVectorSource.addFeature(feature);
-
                     });
 
                 // Zoom to property
                 if (this.propertyVectorSource.getFeatures().length > 0) {
                     // console.log('Zoom');
                     let featureSelected: Feature<Geometry> = this.propertyVectorSource.
-                        getFeaturesCollection().getArray()[this.propertyVectorSource.getFeatures().length - 1];
+                        getFeaturesCollection().getArray()[0];
                     const extent: Extent = featureSelected.getGeometry().getExtent();
 
                     this.propertySelected = {
@@ -743,14 +771,27 @@ export class MapService implements Observable {
 
                     this.notify();
 
-                    // this.view.fit(extent, { maxZoom: this.MAX_ZOOM_FIT_VIEW });
-                    this.view.fit(extent);
+                    this.view.fit(extent, { maxZoom: this.MAX_ZOOM_FIT_VIEW });
+                    // this.view.fit(extent);
                 } else {
                     alert('No se encontré algún Predio con ese Numero');
                 }
             });
-        });
 
+            this.instance.removeEventListener('click', listener);
+        }
+
+
+        this.instance.on('click', listener);
+
+    }
+
+    centerAndZoomView(coordinates: Coordinate, projSource: string){
+        let newCoordinates = projSource === this.view.getProjection().getCode() ?
+            coordinates : transform(coordinates, projSource, this.view.getProjection() );
+        
+        this.instance.getView().setCenter(newCoordinates);
+        this.instance.getView().setZoom(this.MAX_ZOOM_FIT_VIEW);
     }
 
 
@@ -758,6 +799,9 @@ export class MapService implements Observable {
 
     //getters and setter
     getMap(): Map { return this.instance; }
+
+
+
 
 }
 
