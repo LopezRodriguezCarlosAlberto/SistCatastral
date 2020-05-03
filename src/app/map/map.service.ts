@@ -35,8 +35,8 @@ import Polygon from 'ol/geom/Polygon';
 import LineString from 'ol/geom/LineString';
 import OverlayPositioning from 'ol/OverlayPositioning';
 import { Coordinate } from 'ol/coordinate';
-
-import { FullScreen } from 'ol/control';
+import { Options as ControlOptions } from 'ol/control/Control';
+import { FullScreen, Control } from 'ol/control';
 import { DragRotateAndZoom, Select } from 'ol/interaction';
 
 import { Size } from 'ol/size';
@@ -158,6 +158,9 @@ export class MapService implements Observable {
 
         // Marker
         this.initMarketLayer();
+
+        //Clear Control
+        this.initializeClearControl();
 
     }
 
@@ -392,8 +395,8 @@ export class MapService implements Observable {
                     width: 2
                 }),
                 text: new Text({
-                    backgroundStroke: new Stroke({color: '#000000'}),
-                    stroke: new Stroke({color: '#FFFFFF'})
+                    backgroundStroke: new Stroke({ color: '#000000' }),
+                    stroke: new Stroke({ color: '#FFFFFF' })
                 }),
 
             })
@@ -436,7 +439,7 @@ export class MapService implements Observable {
             });
 
         draw.on('drawend',
-            () => {                
+            () => {
                 if (this.helpTooltipElement) {
                     this.helpTooltipElement.parentNode.removeChild(this.helpTooltipElement);
                 }
@@ -708,8 +711,8 @@ export class MapService implements Observable {
 
         // Transform coordinate projection to correct view projection
         let newCoordinates = projSource === this.view.getProjection().getCode() ?
-            coordinate_ : transform(coordinate_, projSource, this.view.getProjection() );
-        
+            coordinate_ : transform(coordinate_, projSource, this.view.getProjection());
+
         this.marker = new Feature({ geometry: new Point(newCoordinates) });
         this.marker.setStyle(this.icon);
 
@@ -786,14 +789,44 @@ export class MapService implements Observable {
 
     }
 
-    centerAndZoomView(coordinates: Coordinate, projSource: string){
+    centerAndZoomView(coordinates: Coordinate, projSource: string) {
         let newCoordinates = projSource === this.view.getProjection().getCode() ?
-            coordinates : transform(coordinates, projSource, this.view.getProjection() );
-        
+            coordinates : transform(coordinates, projSource, this.view.getProjection());
+
         this.instance.getView().setCenter(newCoordinates);
         this.instance.getView().setZoom(this.MAX_ZOOM_FIT_VIEW);
     }
 
+    initializeClearControl() {
+        let tis = this;
+        let ClearControl = new (class CustomControl extends Control {
+
+            constructor(options?: ControlOptions) {
+                let button = document.createElement('button');
+                button.innerHTML = 'C';
+                button.title = 'Limpiar Mapa';
+
+                let element = document.createElement('div');
+                element.className = 'ol-clear ol-unselectable ol-control';
+                element.appendChild(button);
+
+                super({target: options.target, element});
+
+
+                button.addEventListener('click', this.handleRotateNorth, false);
+            }
+
+            handleRotateNorth($event): void{
+                console.log(event.type);
+                tis.marketSource.clear();
+                tis.propertyVectorSource.clear();
+                tis.measureSource.clear();
+            }
+
+        })({});
+
+        this.instance.addControl(ClearControl);
+    }
 
 
 
