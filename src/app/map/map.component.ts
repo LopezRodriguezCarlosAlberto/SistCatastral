@@ -10,6 +10,8 @@ import Control from 'ol/control/Control';
 import BackNextControl from '../ol/controls/backnextcontrol';
 import Layer from 'ol/layer/Layer';
 import PrintControl from '../ol/controls/printcontrol';
+import { FullScreen } from 'ol/control';
+import BaseLayer from 'ol/layer/Base';
 
 export interface LayerData {
   layer: Layer;
@@ -23,16 +25,15 @@ export interface LayerData {
 })
 export class MapComponent extends Map implements AfterViewInit {
 
-  private clearControl: Control;
-
   @ViewChild('map') containerMap: ElementRef;
 
-  geoserver: LayerGroup;
-  baseGroup: LayerGroup;
+  private clearControl: Control;
+  private geoserver: LayerGroup;
+  private baseGroup: LayerGroup;
 
-  constructor() {
-    super({});
-  }
+  layernames = [
+   /*  { name: 'Base Layers', visible: true },*/
+  ];
 
   ngAfterViewInit(): void {
     this.setTarget(this.containerMap.nativeElement);
@@ -42,10 +43,12 @@ export class MapComponent extends Map implements AfterViewInit {
     const minZoom = 5;
 
     this.setView(new View({ center, zoom, minZoom, maxZoom }));
-    this.initLayers();
 
     /** Controls */
     this.clearControl = new ClearControl(true, {});
+    this.addControl(this.clearControl);
+
+    this.clearControl = new FullScreen({});
     this.addControl(this.clearControl);
 
     let undoredo = new BackNextControl({});
@@ -53,16 +56,10 @@ export class MapComponent extends Map implements AfterViewInit {
 
     let print = new PrintControl({});
     this.addControl(print);
-
-    /** Interactions */
-    // let v = new CamargoVectorLayerBuilder().stroke('#ffcc33', 3).build();
-    // let interaction = new MeasureDrawInteraction({ source: v.getSource(), type: GeometryType.LINE_STRING });    
-    // this.addInteraction(interaction);
-    // this.addLayer(v);
-
   }
 
-  initLayers() {
+  constructor() {
+    super({});
     this.baseGroup = new LayerGroup({
       layers: [
         // osm: 
@@ -71,28 +68,25 @@ export class MapComponent extends Map implements AfterViewInit {
         new FactoryOSM({ url: 'http://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png' }).createTileLayer()
       ]
     });
-
-    this.geoserver = new LayerGroup({
-      layers: [
-        // Geoserver
-        new CamargoFactory('GDB08', 'zonas').createImageLayer(),
-        new CamargoFactory('GDB08', 'localidades').createImageLayer(),
-        new CamargoFactory('GDB08', 'sectores').createImageLayer(),
-        new CamargoFactory('GDB08011', 'p').createImageLayer(),
-
-      ]
-    });
-
-    this.addLayer(this.baseGroup);
-    this.addLayer(this.geoserver);
-
-
-    /*  this.addLayer(
-       new CamargoVectorLayerBuilder().workspace('GDB08011').layer('p')
-               .cqlparam('cve_cat_ori', '1005006006').build()
-     ); */
+    // Geoserver
+    this.addLayerItem('Base Layer', this.baseGroup);
+    this.addLayerItem('Zonas',      new CamargoFactory('GDB08', 'zonas').createImageLayer());
+    this.addLayerItem('Localidades',new CamargoFactory('GDB08', 'localidades').createImageLayer());
+    this.addLayerItem('Sectores',   new CamargoFactory('GDB08', 'sectores').createImageLayer());
+    this.addLayerItem('Asentamientos',new CamargoFactory('GDB08', 'asentamientos').createImageLayer());
+    this.addLayerItem('Vialidades', new CamargoFactory('GDB08', 'vialidades').createImageLayer());
+    this.addLayerItem('Manzanas',   new CamargoFactory('GDB08', 'manzanas').createImageLayer());
+    this.addLayerItem('Predios|Propiedades',    new CamargoFactory('GDB08011', 'p').createImageLayer());
   }
 
-  // fitViewOnExtent( feature: Feature ): void {}
+  /**
+   * 
+   * @param name El Nombre del Layer
+   * @param layer El Objeto Layer
+   */
+  addLayerItem(name: string, layer: BaseLayer) {
+    this.addLayer(layer);
+    this.layernames.push( {name, visible: layer.getVisible()} );
+  }
 
 }
