@@ -5,7 +5,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { SidenavComponent } from './sidenav/sidenav.component';
 import {MatButtonModule} from '@angular/material/button';
 import {MatButtonToggleModule} from '@angular/material/button-toggle' ;
 import {MatIconModule} from '@angular/material/icon' ;
@@ -22,18 +21,18 @@ import { MapComponent } from './map/map.component';
 import { MapService } from './map/map.service';
 import { HttpClientModule } from '@angular/common/http';
 import { DialogComponent } from './dialog/dialog.component';
-import {MatDialogModule} from '@angular/material/dialog';
+import {MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS} from '@angular/material/dialog';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatInputModule} from '@angular/material/input';
-
 import { AgmCoreModule } from '@agm/core';
-import { GoogleMapsComponent } from './google-maps/google-maps.component';
-import { MarketComponent } from './map/market/market/market.component';
+import { GoogleMapsComponent } from './google-maps/components/boxsearch/google-maps.component';
+import MarkerFactory from './ol/factories/marker.factory';
+import { SidenavComponent } from './sidenav/sidenav.component';
 
 @NgModule({
   declarations: [
-    AppComponent,SidenavComponent,MapComponent, DialogComponent, GoogleMapsComponent, MarketComponent
-  ],exports:[MatSidenavModule],
+    AppComponent,SidenavComponent, MapComponent, DialogComponent, GoogleMapsComponent,
+  ], exports:[MatSidenavModule],
   imports: [
     BrowserModule,
     HttpClientModule,
@@ -58,7 +57,9 @@ import { MarketComponent } from './map/market/market/market.component';
      NguiMapModule.forRoot({apiUrl: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyC_9BCFea7nrIi2jGyjnC5EP6hx9udoMlU'}),
      AgmCoreModule.forRoot({apiKey: 'AIzaSyChg0ncJgZdqvTgkWiLTpaoT4WDx6w2b_Q',libraries: ['places']})
   ],
-  providers: [MapService],
+  providers: [MapService, MarkerFactory,
+    {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: false}}
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

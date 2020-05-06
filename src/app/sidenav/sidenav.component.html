@@ -16,9 +16,12 @@
                     </mat-expansion-panel-header>
 
                     <mat-radio-group style="display: block;padding-left: 88px;">
-                        <mat-radio-button style="display: block;" checked class="OSM" value="OSM" (change)="handleVisibleBaseLayer(0)">OSM</mat-radio-button>
-                        <mat-radio-button style="display: block;" id="Terrain" value="Terrain" (change)="handleVisibleBaseLayer(1)">Terrain</mat-radio-button>
-                        <mat-radio-button style="display: block;" id="Stamen" value="Stamen" (change)="handleVisibleBaseLayer(2)">Stamen</mat-radio-button>
+                        <mat-radio-button style="display: block;" checked class="OSM" value="OSM"
+                            >OSM</mat-radio-button>
+                        <mat-radio-button style="display: block;" id="Terrain" value="Terrain"
+                            >Terrain</mat-radio-button>
+                        <mat-radio-button style="display: block;" id="Stamen" value="Stamen"
+                            >Stamen</mat-radio-button>
                     </mat-radio-group>
                 </mat-expansion-panel>
                 <!-- ---------------------------------------- FIN CAPA BASE------------------------------------------------>
@@ -29,43 +32,56 @@
                         <mat-panel-title>Layers </mat-panel-title>
                     </mat-expansion-panel-header>
                     <mat-list>
+                            <mat-list-item>
+                                <input type="checkbox" id="basemap" name="basemap" checked value="Mapa Base"
+                                    setVisibleOverlay>
+                                <label for="basemap"></label><br>
+                            </mat-list-item>
 
                         <mat-list-item>
-                            <input type="checkbox" id="basemap" name="basemap" checked value="Mapa Base" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
+                            <input type="checkbox" id="basemap" name="basemap" checked value="Mapa Base"
+                                setVisibleOverlay>
                             <label for="basemap"> Mapa Base</label><br>
                         </mat-list-item>
 
                         <mat-list-item>
-                            <input type="checkbox" id="zonacatastral" name="zonacatastral" checked value="Zona Catastral" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
+                            <input type="checkbox" id="zonacatastral" name="zonacatastral" checked
+                                value="Zona Catastral" setVisibleOverlay>
                             <label for="zonacatastral"> Zona Catastral</label><br>
                         </mat-list-item>
 
                         <mat-list-item>
-                            <input type="checkbox" id="localidad" name="localidad" checked value="localidad" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
+                            <input type="checkbox" id="localidad" name="localidad" checked value="localidad"
+                                setVisibleOverlay>
                             <label for="localidad"> Localidad</label><br>
                         </mat-list-item>
                         <mat-list-item>
-                            <input type="checkbox" id="sectores" name="sectores" checked value="Sectores" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
+                            <input type="checkbox" id="sectores" name="sectores" checked value="Sectores"
+                                setVisibleOverlay>
                             <label for="sectores"> Sectores</label><br>
                         </mat-list-item>
 
                         <mat-list-item>
-                            <input type="checkbox" id="asentamientos" name="asentamientos" checked value="Asentamientos" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
+                            <input type="checkbox" id="asentamientos" name="asentamientos" checked value="Asentamientos"
+                                setVisibleOverlay>
                             <label for="asentamientos"> Asentamientos</label><br>
                         </mat-list-item>
 
                         <mat-list-item>
-                            <input type="checkbox" id="Vialidad" name="Vialidad" checked value="Vialidad" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
+                            <input type="checkbox" id="Vialidad" name="Vialidad" checked value="Vialidad"
+                                setVisibleOverlay>
                             <label for="Vialidad"> Vialidad</label><br>
                         </mat-list-item>
 
                         <mat-list-item>
-                            <input type="checkbox" id="Manzanas" name="Manzanas" checked value="Manzanas" (change)='handleCheckedOverlayLayers($event)'>
+                            <input type="checkbox" id="Manzanas" name="Manzanas" checked value="Manzanas"
+                                >
                             <label for="Manzanas"> Manzanas</label><br>
                         </mat-list-item>
 
                         <mat-list-item>
-                            <input type="checkbox" id="Predios" name="Predios" checked value="Predios" (change)='handleCheckedOverlayLayers($event)'>
+                            <input type="checkbox" id="Predios" name="Predios" checked value="Predios"
+                                >
                             <label for="Predios">Predios</label><br>
                         </mat-list-item>
 
@@ -88,22 +104,31 @@
                         <mat-list-item>
                             <mat-form-field>
                                 <mat-label for="fname">Buscar por CVA_ORIG </mat-label>
-                                <input matInput placeholder="CTA_ORIG" style="width: 208px;" id="fname" #cta_orig>
+                                <input #cve_orig matInput placeholder="CTA_ORIG" style="width: 208px;" id="fname">
                             </mat-form-field>
-                            <button mat-raised-button color="primary" matTooltip="Buscar" (click)='handleClickEvent(cta_orig.value)'><mat-icon>search</mat-icon></button>
+                            <button mat-raised-button color="primary" matTooltip="Buscar"
+                                (click)="buscarByCve(cve_orig.value, mymap)">
+                                <mat-icon>search</mat-icon>
+                            </button>
                         </mat-list-item>
 
                         <mat-list-item style="padding-left: 66px;">
-                            <button mat-raised-button color="primary" matTooltip="Centrar en el predio Seleccionado" (click)='enableFocusOnProperty()'><mat-icon>center_focus_weak</mat-icon></button>
+                            <button mat-raised-button color="primary" matTooltip="Centrar en el predio Seleccionado"
+                            (click)="buscarByClick(mymap)">
+                                <mat-icon>center_focus_weak</mat-icon>
+                            </button>
                         </mat-list-item>
 
                         <mat-list-item style="padding-left: 66px;">
-                            <button mat-raised-button color="primary" matTooltip="Añadir un Marcador" (click)='enableAddMarkerByClick()'><mat-icon>pin_drop</mat-icon></button>
+                            <button mat-raised-button color="primary" matTooltip="Añadir un Marcador"
+                                (click)='enableAddMarkerByClick(mymap)'>
+                                <mat-icon>pin_drop</mat-icon>
+                            </button>
                         </mat-list-item>
 
 
-                        <mat-list-item >
-                           <goo-box-search (coordinateChange)='addMarker($event)'></goo-box-search>
+                        <mat-list-item>
+                            <goo-box-search (coordinateChange)='addGooMarker($event, mymap)'></goo-box-search>
                         </mat-list-item>
                     </mat-list>
 
@@ -124,11 +149,14 @@
                         <mat-list-item style="padding-left: 6px;">
                             <mat-form-field>
                                 <mat-label>Seleccionar</mat-label>
-                                <mat-select id="type" #type>
-                                    <mat-option value="length">
+                                <mat-select id="type" #type (selectionChange)="optionInteractionChange($event, mymap)">
+                                    <mat-option value="none" >
+                                        ...
+                                    </mat-option>
+                                    <mat-option #line value="line">
                                         Length (LineString)
                                     </mat-option>
-                                    <mat-option value="area">
+                                    <mat-option #area value="area">
                                         Area (Polygon)
                                     </mat-option>
                                 </mat-select>
@@ -136,31 +164,15 @@
                         </mat-list-item>
 
                         <mat-list-item style="padding-left: 66px;">
-                            <button mat-raised-button color="primary" matTooltip="Trazar" (click)='handleClickMeasureButton(type.value)'><mat-icon>create</mat-icon></button>
+                            <button mat-raised-button color="primary" matTooltip="Trazar"
+                                >
+                                <mat-icon>create</mat-icon>
+                            </button>
                         </mat-list-item>
                     </mat-list>
                 </mat-expansion-panel>
 
                 <!-- ---------------------------------------- FIN MEASURE OPTIONS------------------------------------------------>
-
-                <!-- ---------------------------------------- TOOL OPTIONS------------------------------------------------>
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>Tool options </mat-panel-title>
-                    </mat-expansion-panel-header>
-
-                    <mat-list>
-                        <mat-list-item>
-                            <button mat-raised-button color="primary" matTooltip="Siguiente movimiento" (click)='NextClickButton()'><mat-icon>skip_next</mat-icon></button>
-
-                            <button style="margin-left: 17px" mat-raised-button color="primary" matTooltip="Anterior movimiento" (click)='BackClickButton()'><mat-icon>skip_previous</mat-icon></button>
-
-                            <button style="margin-left: 17px" mat-raised-button color="primary" matTooltip="Descargar pdf" (click)="Printer()"><mat-icon>picture_as_pdf</mat-icon></button>
-                        </mat-list-item>
-                    </mat-list>
-                </mat-expansion-panel>
-                <!-- ---------------------------------------- FIN TOOL OPTIONS------------------------------------------------>
-
             </mat-tab>
             <mat-tab label="Información del predio">
                 <br><br>
@@ -219,7 +231,9 @@
     </mat-sidenav>
     <mat-sidenav-content>
         <mat-toolbar style="background-color: #3f51b5;" class="example-toolbar">
-            <button mat-icon-button (click)="sidenav.toggle()"><mat-icon>menu</mat-icon></button>
+            <button mat-icon-button (click)="sidenav.toggle()">
+                <mat-icon>menu</mat-icon>
+            </button>
             <h1 class="example-app-name">Sistema Catastral</h1>
         </mat-toolbar>
         <app-map #mymap (propertySelected)="loadProperty($event)"></app-map>

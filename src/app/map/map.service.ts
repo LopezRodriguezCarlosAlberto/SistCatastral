@@ -46,7 +46,7 @@ import { SelectEvent } from 'ol/interaction/Select';
 import { unByKey } from 'ol/Observable';
 
 import Observable from '../core/Observable.interface';
-import Property from '../core/property.interface';
+import Property from '../core/Property.interface';
 import Observer from '../core/Observer.interface';
 import Icon from 'ol/style/Icon';
 import Point from 'ol/geom/Point';
@@ -278,6 +278,7 @@ export class MapService implements Observable {
     }
 
 
+    // FIXME Funcion pendiente de agregar
     searchAndZoomToProperty(cta_orig_property: string): void {
         let url = 'http://187.189.192.102:8080/geoserver/GDB08011/ows?' +
             'service=WFS&' +
@@ -334,6 +335,7 @@ export class MapService implements Observable {
         );
     }
 
+    // FIXME
     toggleVisibleSUACLayer(position: number): void {
         let isVisible = this.layers.getLayers().getArray()[position].getVisible();
 
@@ -343,7 +345,7 @@ export class MapService implements Observable {
     // Interactions
 
 
-
+    // FIXME
     private initInteraction(): void {
 
         let cssElement = document.createElement('style');
@@ -374,6 +376,7 @@ export class MapService implements Observable {
 
     }
 
+    // FIXME
     onceDrawInteraction(_type: string): void {
         const type: GeometryType = (_type === 'area' ? GeometryType.POLYGON : GeometryType.LINE_STRING);
 
@@ -461,7 +464,7 @@ export class MapService implements Observable {
                 }
 
                 // Remove Draw Instance
-                this.instance.removeInteraction(draw);
+                // this.instance.removeInteraction(draw);
             });
 
     }
@@ -648,10 +651,11 @@ export class MapService implements Observable {
 
 
     /**
+     * FIXME
      * Permite que al hacer click se agregue un marcador
      *  Carga la informacion de la posicion de ese marcador
      * Remueve el evento  una vez finalizado
-     */
+     */ // FIXME
     oncePoint() {
         const listener = (evt: MapBrowserEvent) => {
             // add market
@@ -762,7 +766,7 @@ export class MapService implements Observable {
                         bc: featureSelected.getProperties()['bc'],
                         cve_cat_ant: featureSelected.getProperties()['cve_cat_ant'],
                         cve_cat_est: featureSelected.getProperties()['cve_cat_est'],
-                        cve_cat_ori: featureSelected.getProperties()['cve_cat_ori'],
+                        cve_cat_ori: featureSelected.getProperties()['f'],
                         predio_irregular: featureSelected.getProperties()['predio_irregular'],
                         regimen: featureSelected.getProperties()['regimen'],
                         status: featureSelected.getProperties()['status'],

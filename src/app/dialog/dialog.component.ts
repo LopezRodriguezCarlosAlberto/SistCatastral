@@ -1,24 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { NguiMapComponent } from '@ngui/map';
-import { MapService } from '../map/map.service';
-
+import { Component, Inject, Input } from '@angular/core';
+import {MAT_DIALOG_DATA} from '@angular/material/dialog';
 @Component({
   selector: 'app-dialog',
   templateUrl: './dialog.component.html',
   styleUrls: ['./dialog.component.css']
 })
 export class DialogComponent  {
-  
-  constructor(public mapCor: MapService) { 
-  }
+  longitude: number;
+  latitude: number;
 
-  public getX(){
-   return this.mapCor.getPositionX();
+  constructor(@Inject(MAT_DIALOG_DATA) public data: any){
+    this.latitude = data.latitude;
+    this.longitude = data.longitude;
   }
-
-  public getY(){
-    return this.mapCor.getPositionY();
-  }
-
  
 }

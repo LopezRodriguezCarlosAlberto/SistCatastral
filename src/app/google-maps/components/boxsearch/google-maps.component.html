@@ -1,0 +1,10 @@
+<!-- app.component.html -->
+ <mat-form-field>
+  <mat-label for="goo-box-address">Buscar Dirección. </mat-label>
+  <input matInput 
+      id="goo-box-address"
+      (keydown.enter)="$event.preventDefault()" 
+      placeholder="Camargo, Chihuahua" 
+      autocorrect="off" autocapitalize="off" 
+      spellcheck="off" #search ><!-- style="width: 600px;"> -->
+</mat-form-field>
