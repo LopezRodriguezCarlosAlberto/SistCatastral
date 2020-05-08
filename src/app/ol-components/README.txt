@@ -1,0 +1,1 @@
+Aqui irian los componentes angular si se convierten a componentes

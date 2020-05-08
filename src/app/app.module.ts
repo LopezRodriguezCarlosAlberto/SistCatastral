@@ -18,7 +18,6 @@ import {MatListModule} from '@angular/material/list';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTabsModule} from '@angular/material/tabs'; 
 import { MapComponent } from './map/map.component';
-import { MapService } from './map/map.service';
 import { HttpClientModule } from '@angular/common/http';
 import { DialogComponent } from './dialog/dialog.component';
 import {MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS} from '@angular/material/dialog';
@@ -57,7 +56,7 @@ import { SidenavComponent } from './sidenav/sidenav.component';
      NguiMapModule.forRoot({apiUrl: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyC_9BCFea7nrIi2jGyjnC5EP6hx9udoMlU'}),
      AgmCoreModule.forRoot({apiKey: 'AIzaSyChg0ncJgZdqvTgkWiLTpaoT4WDx6w2b_Q',libraries: ['places']})
   ],
-  providers: [MapService, MarkerFactory,
+  providers: [MarkerFactory,
     {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: false}}
   ],
   bootstrap: [AppComponent]

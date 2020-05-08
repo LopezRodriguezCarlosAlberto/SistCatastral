@@ -52,13 +52,13 @@ export class MapComponent extends Map implements AfterViewInit {
     this.clearControl = new ClearControl(true, {});
     this.addControl(this.clearControl);
 
-    let fullScreen = new FullScreen({});
+    const fullScreen = new FullScreen({});
     this.addControl(this.clearControl);
 
-    let undoredo = new BackNextControl({});
+    const undoredo = new BackNextControl({});
     this.addControl(undoredo);
 
-    let print = new PrintControl({});
+    const print = new PrintControl({});
     this.addControl(print);
   }
 
@@ -69,6 +69,7 @@ export class MapComponent extends Map implements AfterViewInit {
 
     this.layerbasenames = [
       {name: 'OSM', layer: new FactoryOSM({}, false).createTileLayer()},
+      // tslint:disable-next-line: max-line-length
       {name: 'Humanitarian', layer: new FactoryOSM({ url: 'http://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png' }, false).createTileLayer() },
       {name: 'Otra', layer: new FactoryOSM({ url: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png'}, true).createTileLayer() }
     ];
@@ -79,9 +80,9 @@ export class MapComponent extends Map implements AfterViewInit {
     // Geoserver
     this.addLayerItem('Base Layer', this.baseGroup);
     this.addLayerItem('Zonas',      new CamargoFactory('GDB08', 'zonas').createImageLayer(), false);
-    this.addLayerItem('Localidades',new CamargoFactory('GDB08', 'localidades').createImageLayer(), false);
+    this.addLayerItem('Localidades', new CamargoFactory('GDB08', 'localidades').createImageLayer(), false);
     this.addLayerItem('Sectores',   new CamargoFactory('GDB08', 'sectores').createImageLayer(), false);
-    this.addLayerItem('Asentamientos',new CamargoFactory('GDB08', 'asentamientos').createImageLayer(), false);
+    this.addLayerItem('Asentamientos', new CamargoFactory('GDB08', 'asentamientos').createImageLayer(), false);
     this.addLayerItem('Vialidades', new CamargoFactory('GDB08', 'vialidades').createImageLayer());
     this.addLayerItem('Manzanas',   new CamargoFactory('GDB08', 'manzanas').createImageLayer());
     this.addLayerItem('Predios|Propiedades',    new CamargoFactory('GDB08011', 'p').createImageLayer(), false);
