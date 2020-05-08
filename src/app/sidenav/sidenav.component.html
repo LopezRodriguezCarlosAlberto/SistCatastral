@@ -15,11 +15,15 @@
                         <mat-panel-title>Layers base </mat-panel-title>
                     </mat-expansion-panel-header>
 
-                    <mat-radio-group style="display: block;padding-left: 88px;">
-                        <mat-radio-button style="display: block;" checked class="OSM" value="OSM">OSM</mat-radio-button>
-                        <mat-radio-button style="display: block;" id="Terrain" value="Terrain">Terrain
-                        </mat-radio-button>
-                        <mat-radio-button style="display: block;" id="Stamen" value="Stamen">Stamen</mat-radio-button>
+                    <mat-radio-group style="display: block;padding-left: 88px;"
+                        *ngFor="let item of mymap.layerbasenames; let i = index">
+                        <!-- <div *ngFor="let item of mymap.layerbasenames; let i = index"> -->
+                        <mat-radio-button #rtk style="display: block;left: 0.5em;" checked="{{item.layer.getVisible()}}"
+                            value="radio-{{i}}" 
+                            (change)="mymap.showBaseLayer(item)"
+                            >
+                            {{item.name|uppercase}}</mat-radio-button>
+                        <!-- </div> -->
                     </mat-radio-group>
                 </mat-expansion-panel>
                 <!-- ---------------------------------------- FIN CAPA BASE------------------------------------------------>
@@ -32,7 +36,8 @@
                     <mat-list>
                         <div *ngFor="let obj of mymap.layernames; let i = index;">
                             <mat-list-item>
-                            <mat-checkbox #chbx (change)="mymap.getLayers().getArray()[i].setVisible(chbx.checked)" [checked]="obj.visible"  id="{{obj.name}}" >{{obj.name}}</mat-checkbox>
+                                <mat-checkbox #chbx (change)="mymap.getLayers().getArray()[i].setVisible(chbx.checked)"
+                                    [checked]="obj.visible" id="{{obj.name}}">{{obj.name}}</mat-checkbox>
                             </mat-list-item>
                         </div>
                     </mat-list>
@@ -53,14 +58,14 @@
                                 <input #cve_orig matInput placeholder="CTA_ORIG" style="width: 208px;" id="fname">
                             </mat-form-field>
                             <button mat-raised-button color="primary" matTooltip="Buscar"
-                                (click)="buscarByCve(cve_orig.value, mymap)">
+                                (click)="searchByCve(cve_orig.value, mymap)">
                                 <mat-icon>search</mat-icon>
                             </button>
                         </mat-list-item>
 
                         <mat-list-item style="padding-left: 66px;">
                             <button mat-raised-button color="primary" matTooltip="Centrar en el predio Seleccionado"
-                                (click)="buscarByClick(mymap)">
+                                (click)="searchByClick(mymap)">
                                 <mat-icon>center_focus_weak</mat-icon>
                             </button>
                         </mat-list-item>
@@ -121,8 +126,26 @@
             </mat-tab>
             <mat-tab label="Información del predio">
                 <br><br>
+                <!-- https://angular.io/api/common/KeyValuePipe -->
                 <mat-list>
-                    <mat-list-item style="padding-left: 6px;">
+                    <div *ngFor="let obj of modelProperty">
+                        <mat-list-item style="padding-left: 6px;">
+                            <mat-form-field>
+                                <!-- <mat-label>{{obj.key|uppercase}}</mat-label> -->
+                                <div *ngIf="obj.value!=undefined && obj.value != 0; else elseBlock">
+                                    <input matInput id="{{obj.key}}" [value]="obj.value"
+                                        placeholder="{{obj.key|uppercase}}">
+                                </div>
+                                <ng-template #elseBlock>
+                                    <input matInput style="color: red;" id="{{obj.key}}" [value]="obj.key"
+                                        placeholder="{{obj.key|uppercase}}">
+                                </ng-template>
+
+                            </mat-form-field>
+                        </mat-list-item>
+                    </div>
+
+                    <!--                     <mat-list-item style="padding-left: 6px;">
                         <mat-form-field>
                             <mat-label>CVA_CAT_ANT</mat-label>
                             <input matInput id="field1" [value]="modelProperty.cve_cat_ant" placeholder="Codigo">
@@ -162,7 +185,7 @@
                             <mat-label for="field6"> REGIMEN </mat-label>
                             <input matInput id="field6" [value]="modelProperty.regimen" placeholder="Codigo">
                         </mat-form-field>
-                    </mat-list-item>
+                    </mat-list-item> -->
                 </mat-list>
             </mat-tab>
             <mat-tab label="Street View">
@@ -181,6 +204,6 @@
             </button>
             <h1 class="example-app-name">Sistema Catastral</h1>
         </mat-toolbar>
-        <app-map #mymap (propertySelected)="loadProperty($event)"></app-map>
+        <app-map #mymap></app-map>
     </mat-sidenav-content>
 </mat-sidenav-container>

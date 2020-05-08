@@ -6,7 +6,7 @@ import TileLayer from 'ol/layer/Tile';
 
 export default class FactoryOSM extends LayerFactory {
 
-    constructor(private options: Options) {
+    constructor(private options: Options, private visible?: boolean) {
         super();
         if (!options.crossOrigin) {
             this.options.crossOrigin = "anonymous";
@@ -16,7 +16,7 @@ export default class FactoryOSM extends LayerFactory {
     createTileLayer(): Layer {
         // Tile Layers
         let osm_source = new OSM(this.options);
-        let osm: Layer = new TileLayer({ source: osm_source });
+        let osm: Layer = new TileLayer({ source: osm_source, visible: this.visible });
 
         return osm;
     }
